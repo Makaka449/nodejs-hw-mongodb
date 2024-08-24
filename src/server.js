@@ -1,43 +1,33 @@
-
-import cors from 'cors';
 import express from 'express';
-import pino from 'pino-http';
+import { initMongoConnection } from './db/initMongoConnection.js';
+import { contactsRouter } from './routers/contacts.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import { notFoundHandler } from './middlewares/notFoundHandler.js';
+import dotenv from 'dotenv';
 
-import env from './utils/env.js';
-
-import contactsControllers from './controllers/contactsControllers.js';
+dotenv.config();
 
 const setupServer = () => {
   const app = express();
+  app.use(express.json());
 
-  app.use(cors());
-  app.use(
-    pino({
-      transport: {
-        target: 'pino-pretty',
-      },
-    })
-  );
+  initMongoConnection();
 
-  app.get('/contacts', contactsControllers.getAllContacts);
-  app.get('/contacts/:id', contactsControllers.getContact);
+  app.use('/contacts', contactsRouter);
 
-  app.use('*', (req, res) => {
-    res.status(404).json({
-      message: 'Route not found',
-    });
+  app.use(notFoundHandler); 
+
+  app.use(errorHandler); 
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
 
-  app.use((err, req, res) => {
-    res.status(500).json({
-      message: 'Something went wrong',
-      error: err.message,
-    });
-  });
-
-  const PORT = Number(env('PORT'));
-
-  app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+  return app;
 };
 
-export default setupServer;
+export { setupServer };
+
+
+
