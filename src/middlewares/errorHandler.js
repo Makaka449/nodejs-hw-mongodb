@@ -14,11 +14,7 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-<<<<<<< HEAD
 export { errorHandler }; 
-=======
-export { errorHandler }; // Додаємо цей рядок, щоб експортувати функцію
->>>>>>> f58b1caf67bf856c0a701fb261a56f8c0d5b854b
 
 
 
