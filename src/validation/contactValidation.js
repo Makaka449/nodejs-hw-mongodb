@@ -2,6 +2,7 @@
 
 import { body, validationResult } from 'express-validator';
 
+
 const contactSchema = [
   body('name')
     .isString()
@@ -25,9 +26,13 @@ const contactSchema = [
     .withMessage('Invalid contact type'),
 ];
 
+
 const validateBody = (schema) => {
   return async (req, res, next) => {
+    
     await Promise.all(schema.map(validation => validation.run(req)));
+    
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -41,10 +46,3 @@ const validateBody = (schema) => {
 };
 
 export { validateBody, contactSchema };
-
-
-
-
-
-
-
