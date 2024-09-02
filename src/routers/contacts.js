@@ -10,5 +10,3 @@ router.patch('/:contactId', updateExistingContact);
 router.delete('/:contactId', deleteExistingContact);
 
 export { router as contactsRouter };
-
-

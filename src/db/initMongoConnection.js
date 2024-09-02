@@ -1,19 +1,19 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_URL, MONGODB_DB } = process.env;
-
-const connectionString = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DB}?retryWrites=true&w=majority`;
 
 export const initMongoConnection = async () => {
   try {
-    await mongoose.connect(connectionString);  
-    console.log('Mongo connection successfully established!');
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri) {
+      throw new Error('MONGODB_URI is not defined');
+    }
+    
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Successfully connected to MongoDB');
   } catch (error) {
-    console.error('Mongo connection failed:', error);
+    console.error('Mongo connection failed:', error.message);
+    process.exit(1);
   }
 };
-
-

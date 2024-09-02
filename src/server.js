@@ -11,13 +11,13 @@ const setupServer = () => {
   const app = express();
   app.use(express.json());
 
-  initMongoConnection();
+  initMongoConnection(); // Инициализация подключения к MongoDB
 
-  app.use('/contacts', contactsRouter);
+  app.use('/contacts', contactsRouter); // Подключение роутера для контактов
 
-  app.use(notFoundHandler); 
+  app.use(notFoundHandler); // Middleware для обработки несуществующих маршрутов
 
-  app.use(errorHandler); 
+  app.use(errorHandler); // Middleware для обработки ошибок
 
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
@@ -28,6 +28,3 @@ const setupServer = () => {
 };
 
 export { setupServer };
-
-
-

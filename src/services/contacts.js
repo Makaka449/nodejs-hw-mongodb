@@ -1,5 +1,6 @@
 import { Contact } from '../models/contact.js';
 import mongoose from 'mongoose';
+import createError from 'http-errors';
 
 export const getAllContacts = async () => {
   return await Contact.find();
@@ -7,9 +8,13 @@ export const getAllContacts = async () => {
 
 export const getContactById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error('Invalid ID format');
+    throw createError(400, 'Invalid ID format');
   }
-  return await Contact.findById(id);
+  const contact = await Contact.findById(id);
+  if (!contact) {
+    throw createError(404, 'Contact not found');
+  }
+  return contact;
 };
 
 export const createContact = async (contactData) => {
@@ -18,14 +23,22 @@ export const createContact = async (contactData) => {
 
 export const updateContact = async (id, contactData) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error('Invalid ID format');
+    throw createError(400, 'Invalid ID format');
   }
-  return await Contact.findByIdAndUpdate(id, contactData, { new: true });
+  const updatedContact = await Contact.findByIdAndUpdate(id, contactData, { new: true });
+  if (!updatedContact) {
+    throw createError(404, 'Contact not found');
+  }
+  return updatedContact;
 };
 
 export const deleteContact = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error('Invalid ID format');
+    throw createError(400, 'Invalid ID format');
   }
-  return await Contact.findByIdAndDelete(id);
+  const deletedContact = await Contact.findByIdAndDelete(id);
+  if (!deletedContact) {
+    throw createError(404, 'Contact not found');
+  }
+  return deletedContact;
 };
