@@ -1,40 +1,38 @@
-import jwt from 'jsonwebtoken';
 import createHttpError from 'http-errors';
-import { User } from '../models/user.js';
-import { Session } from '../models/session.js';
 
-const authenticate = async (req, res, next) => {
-  const { authorization = '' } = req.headers;
-  const [bearer, token] = authorization.split(' ');
+import { Session } from '../db/models/session.js';
+import { User } from '../db/models/user.js';
 
-  if (bearer !== 'Bearer' || !token) {
-    console.log('Authorization header missing or malformed');
-    return next(createHttpError(401, 'Not authorized'));
+export const authenticate = async (req, res, next) => {
+  const { authorization } = req.headers;
+
+  if (typeof authorization !== 'string') {
+    return next(createHttpError(401, 'Please provide Authorization header'));
   }
 
-  let payload;
-  try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    console.log('Token verification failed:', error.message);
-    return next(createHttpError(401, 'Access token expired'));
+  const [bearer, accessToken] = authorization.split(' ', 2);
+
+  if (bearer !== 'Bearer' || typeof accessToken !== 'string') {
+    return next(createHttpError(401, 'Auth header should be type of Bearer'));
   }
 
-  const session = await Session.findOne({ accessToken: token });
-  if (!session) {
-    console.log('Session not found for token:', token);
+  const session = await Session.findOne({ accessToken });
+
+  if (session === null) {
     return next(createHttpError(401, 'Session not found'));
   }
 
-  const user = await User.findById(payload.id);
-  if (!user) {
-    console.log('User not found with ID:', payload.id);
-    return next(createHttpError(401, 'User not found'));
+  if (new Date() > new Date(session.accessTokenValidUntil)) {
+    return next(createHttpError(401, 'Access token is expired'));
+  }
+
+  const user = await User.findById(session.userId);
+
+  if (user === null) {
+    return next(createHttpError(401, 'Session not found'));
   }
 
   req.user = user;
+
   next();
 };
-
-export default authenticate;
-
