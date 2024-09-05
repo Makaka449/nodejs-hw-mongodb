@@ -1,9 +1,12 @@
 import express from 'express';
-import { loginUser } from '../controllers/auth.js';
-import { validateLogin } from '../middlewares/validate.js';
+import { validateRegister, validateLogin } from '../middlewares/validate.js';  // Правильний імпорт
+import { wrappedRegister, wrappedLogin, wrappedRefresh, wrappedLogout } from '../controllers/auth.js';
 
 const router = express.Router();
 
-router.post('/login', validateLogin, loginUser);
+router.post('/register', validateRegister, wrappedRegister);  // Використання validateRegister
+router.post('/login', validateLogin, wrappedLogin);           // Використання validateLogin
+router.post('/refresh', wrappedRefresh);
+router.post('/logout', wrappedLogout);
 
-export default router;
+export { router as authRouter };
