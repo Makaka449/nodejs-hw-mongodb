@@ -140,6 +140,7 @@ const logout = async (req, res) => {
   res.status(204).send();
 };
 
+// Обгортаємо функції контролера
 export const wrappedRegister = ctrlWrapper(register);
 export const wrappedLogin = ctrlWrapper(login);
 export const wrappedRefresh = ctrlWrapper(refresh);
